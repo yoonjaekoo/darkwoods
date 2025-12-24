@@ -3,20 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dark Woods</title>
+    <title>심연의 숲: Gemini Edition</title>
     <style>
         :root {
-            --bg-color: #0a0a0c;
-            --panel-color: #16161a;
+            --bg-color: #0d0d0d;
+            --panel-color: #1a1a1a;
             --accent-color: #e94560;
-            --text-color: #c9d1d9;
-            --border-color: #30363d;
+            --text-color: #ffffff; /* 글씨 하얀색으로 변경 */
+            --border-color: #333333;
         }
 
         body {
             background-color: var(--bg-color);
             color: var(--text-color);
-            font-family: 'Pretendard', 'Malgun Gothic', 'Courier New', monospace;
+            font-family: 'Pretendard', 'Malgun Gothic', sans-serif;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -25,80 +25,78 @@
             overflow: hidden;
         }
 
-        /* 메인 레이아웃 */
+        /* 메인 레이아웃: 사이드바 제거, 중앙 집중형 */
         #main-wrapper {
-            display: grid;
-            grid-template-columns: 1fr 250px;
-            gap: 20px;
-            width: 95%;
-            max-width: 1000px;
-            height: 90vh;
-        }
-
-        /* 왼쪽 게임 섹션 */
-        #game-section {
             display: flex;
             flex-direction: column;
             gap: 15px;
+            width: 90%;
+            max-width: 800px;
+            height: 90vh;
         }
 
         h2 {
             margin: 0;
             color: var(--accent-color);
-            text-shadow: 0 0 10px rgba(233, 69, 96, 0.5);
-            font-size: 1.5rem;
-            letter-spacing: 2px;
+            text-shadow: 0 0 15px rgba(233, 69, 96, 0.4);
+            font-size: 1.6rem;
+            letter-spacing: 3px;
+            text-align: center;
         }
 
         #game-container {
             flex-grow: 1;
             background-color: var(--panel-color);
             border: 1px solid var(--border-color);
-            border-radius: 12px;
-            padding: 25px;
+            border-radius: 15px;
+            padding: 30px;
             overflow-y: auto;
-            position: relative;
-            box-shadow: inset 0 0 20px rgba(0,0,0,0.8);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
             scrollbar-width: thin;
-            scrollbar-color: var(--border-color) transparent;
+            scrollbar-color: #444 transparent;
         }
 
         /* 스크롤바 디자인 */
         #game-container::-webkit-scrollbar { width: 6px; }
-        #game-container::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 10px; }
+        #game-container::-webkit-scrollbar-thumb { background: #444; border-radius: 10px; }
 
         /* 메시지 스타일 */
         .game-message {
-            margin-bottom: 20px;
+            margin-bottom: 25px;
             line-height: 1.8;
-            animation: fadeIn 0.5s ease;
+            font-size: 1.05rem;
+            animation: fadeIn 0.6s ease forwards;
+            color: var(--text-color); /* AI 메시지도 하얀색 */
         }
 
         .user-message {
-            color: #58a6ff;
+            color: #4db8ff; /* 사용자 입력은 구분되도록 밝은 파란색 유지 */
             font-weight: bold;
-            margin: 15px 0;
+            margin: 20px 0;
             text-align: right;
-            border-right: 3px solid #58a6ff;
-            padding-right: 10px;
+            border-right: 4px solid #4db8ff;
+            padding-right: 15px;
+            font-size: 1.05rem;
         }
 
         .system-alert {
-            color: var(--accent-color);
+            color: #888;
             text-align: center;
             font-style: italic;
             margin: 20px 0;
-            font-weight: bold;
+            font-size: 0.9rem;
+            letter-spacing: 1px;
         }
 
         /* 입력창 디자인 */
         #input-container {
             display: flex;
-            gap: 10px;
+            gap: 12px;
             background: var(--panel-color);
-            padding: 10px;
-            border-radius: 8px;
+            padding: 15px;
+            border-radius: 12px;
             border: 1px solid var(--border-color);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
         }
 
         #user-input {
@@ -106,77 +104,51 @@
             background: transparent;
             border: none;
             color: white;
-            padding: 10px;
+            padding: 5px;
             outline: none;
-            font-size: 1rem;
+            font-size: 1.1rem;
         }
 
         #submit-btn {
             background: var(--accent-color);
             color: white;
             border: none;
-            padding: 10px 20px;
-            border-radius: 5px;
+            padding: 10px 25px;
+            border-radius: 8px;
             cursor: pointer;
-            transition: transform 0.2s, background 0.2s;
+            font-weight: bold;
+            transition: all 0.2s;
         }
 
-        #submit-btn:hover { background: #ff5e78; transform: translateY(-2px); }
-
-        /* 오른쪽 사이드바 (인벤토리/상태) */
-        #sidebar {
-            background-color: var(--panel-color);
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
+        #submit-btn:hover { 
+            background: #ff5e78; 
+            transform: scale(1.05);
+            box-shadow: 0 0 10px rgba(233, 69, 96, 0.4);
         }
 
-        .stat-box {
-            border-bottom: 1px solid var(--border-color);
-            padding-bottom: 15px;
+        #submit-btn:disabled {
+            background: #333;
+            cursor: not-allowed;
+            transform: none;
         }
 
-        .stat-title { color: var(--accent-color); font-size: 0.9rem; margin-bottom: 8px; }
-        .item-list { font-size: 0.9rem; color: #8b949e; list-style: none; padding: 0; }
-        .item-list li { margin-bottom: 5px; }
-
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeIn { 
+            from { opacity: 0; transform: translateY(15px); } 
+            to { opacity: 1; transform: translateY(0); } 
+        }
     </style>
 </head>
 <body>
 
 <div id="main-wrapper">
-    <div id="game-section">
-        <h2>🌲 THE ABYSSAL WOODS</h2>
-        <div id="game-container">
-            <div id="game-output"></div>
-        </div>
-        <div id="input-container">
-            <input type="text" id="user-input" placeholder="심연 속으로 명령을 던지세요..." autofocus>
-            <button id="submit-btn">전송</button>
-        </div>
+    <h2>🌲 THE ABYSSAL WOODS</h2>
+    <div id="game-container">
+        <div id="game-output"></div>
     </div>
-
-    <aside id="sidebar">
-        <div class="stat-box">
-            <div class="stat-title">STATUS</div>
-            <div style="font-size: 1.1rem; color: #fff;">정신력: 100%</div>
-        </div>
-        <div class="stat-box">
-            <div class="stat-title">INVENTORY</div>
-            <ul class="item-list">
-                <li>🪓 녹슨 도끼</li>
-                <li>🕯️ 꺼져가는 양초</li>
-            </ul>
-        </div>
-        <div class="stat-box">
-            <div class="stat-title">LOCATION</div>
-            <div id="loc-text" style="font-size: 0.8rem;">숲의 초입</div>
-        </div>
-    </aside>
+    <div id="input-container">
+        <input type="text" id="user-input" placeholder="무엇을 하시겠습니까?" autofocus>
+        <button id="submit-btn">전송</button>
+    </div>
 </div>
 
 <script type="importmap">
@@ -192,8 +164,6 @@
 
     const API_KEY = "AIzaSyAQlRLYs_CcwFViOLFsgWiLT9MjuZspRX0"; 
     const genAI = new GoogleGenerativeAI(API_KEY);
-    
-    // 모델명을 gemini-1.5-flash로 수정 (2.5는 아직 지원되지 않아!)
     const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 
     const gameOutput = document.getElementById('game-output');
@@ -213,7 +183,7 @@
                 { role: "model", parts: [{ text: "안개가 자욱한 숲의 경계에 서 있습니다. 손에 쥔 도끼의 차가운 금속 감각만이 당신이 살아있음을 증명합니다. 숲 안쪽에서 무언가 긁는 듯한 소리가 들립니다. 어떻게 하시겠습니까?" }] }
             ]
         });
-        addMessage("안개가 자욱한 숲의 경계에 서 있습니다. 손에 쥔 도끼의 차가운 금속 감각만이 당신이 살아있음을 증명합니다. 숲 안쪽에서 무언가 긁는 듯한 소리가 들립니다. 어떻게 하시겠습니까?", 'game-message');
+        addMessage("안개가 자욱한 숲의 입구에 서 있습니다. 손에 쥔 도끼의 차가운 금속 감각만이 당신이 살아있음을 증명합니다. 숲 안쪽에서 무언가 긁는 듯한 소리가 들립니다. 어떻게 하시겠습니까?", 'game-message');
     }
 
     async function handleSend() {
@@ -223,7 +193,8 @@
         addMessage(text, 'user-message');
         userInput.value = '';
 
-        const loadingDiv = addMessage("...심연이 꿈틀거리는 중...", 'system-alert');
+        // 로딩 문구 수정: 다음 스토리 생성 중...
+        const loadingDiv = addMessage("...다음 스토리 생성 중...", 'system-alert');
 
         try {
             const result = await chat.sendMessage(text);
@@ -237,10 +208,11 @@
                 gameActive = false;
                 userInput.disabled = true;
                 submitBtn.disabled = true;
-                addMessage("--- 인과율이 끊어졌습니다 ---", 'system-alert');
+                addMessage("--- 게임 오버 ---", 'system-alert');
             }
         } catch (error) {
             loadingDiv.textContent = `오류 발생: ${error.message}`;
+            loadingDiv.style.color = "#ff4a4a";
         }
     }
 
