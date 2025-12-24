@@ -3,107 +3,260 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>심연의 숲: Gemini Edition</title>
+    <title>Dark Woods</title>
     <style>
-        body { font-family: 'Courier New', monospace; max-width: 800px; margin: 0 auto; padding: 20px; background-color: #1a1a1a; color: #e0e0e0; line-height: 1.6; }
-        #game-container { background-color: #2d2d2d; padding: 20px; border-radius: 8px; height: 65vh; overflow-y: auto; margin-bottom: 20px; border: 1px solid #444; }
-        #input-container { display: flex; gap: 10px; }
-        #user-input { flex-grow: 1; padding: 12px; background-color: #3d3d3d; border: 1px solid #555; color: #fff; border-radius: 4px; outline: none; }
-        button { padding: 10px 25px; background-color: #4a6fa5; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; }
-        .user-message { color: #4a9cff; margin: 10px 0; font-weight: bold; }
-        .game-message { margin: 15px 0; white-space: pre-wrap; border-bottom: 1px solid #333; padding-bottom: 10px; }
-        .error-message { color: #ff4a4a; border: 1px dashed #ff4a4a; padding: 10px; margin: 10px 0; }
+        :root {
+            --bg-color: #0a0a0c;
+            --panel-color: #16161a;
+            --accent-color: #e94560;
+            --text-color: #c9d1d9;
+            --border-color: #30363d;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: 'Pretendard', 'Malgun Gothic', 'Courier New', monospace;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+        }
+
+        /* 메인 레이아웃 */
+        #main-wrapper {
+            display: grid;
+            grid-template-columns: 1fr 250px;
+            gap: 20px;
+            width: 95%;
+            max-width: 1000px;
+            height: 90vh;
+        }
+
+        /* 왼쪽 게임 섹션 */
+        #game-section {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        h2 {
+            margin: 0;
+            color: var(--accent-color);
+            text-shadow: 0 0 10px rgba(233, 69, 96, 0.5);
+            font-size: 1.5rem;
+            letter-spacing: 2px;
+        }
+
+        #game-container {
+            flex-grow: 1;
+            background-color: var(--panel-color);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 25px;
+            overflow-y: auto;
+            position: relative;
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.8);
+            scrollbar-width: thin;
+            scrollbar-color: var(--border-color) transparent;
+        }
+
+        /* 스크롤바 디자인 */
+        #game-container::-webkit-scrollbar { width: 6px; }
+        #game-container::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 10px; }
+
+        /* 메시지 스타일 */
+        .game-message {
+            margin-bottom: 20px;
+            line-height: 1.8;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .user-message {
+            color: #58a6ff;
+            font-weight: bold;
+            margin: 15px 0;
+            text-align: right;
+            border-right: 3px solid #58a6ff;
+            padding-right: 10px;
+        }
+
+        .system-alert {
+            color: var(--accent-color);
+            text-align: center;
+            font-style: italic;
+            margin: 20px 0;
+            font-weight: bold;
+        }
+
+        /* 입력창 디자인 */
+        #input-container {
+            display: flex;
+            gap: 10px;
+            background: var(--panel-color);
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+        }
+
+        #user-input {
+            flex-grow: 1;
+            background: transparent;
+            border: none;
+            color: white;
+            padding: 10px;
+            outline: none;
+            font-size: 1rem;
+        }
+
+        #submit-btn {
+            background: var(--accent-color);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: transform 0.2s, background 0.2s;
+        }
+
+        #submit-btn:hover { background: #ff5e78; transform: translateY(-2px); }
+
+        /* 오른쪽 사이드바 (인벤토리/상태) */
+        #sidebar {
+            background-color: var(--panel-color);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .stat-box {
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 15px;
+        }
+
+        .stat-title { color: var(--accent-color); font-size: 0.9rem; margin-bottom: 8px; }
+        .item-list { font-size: 0.9rem; color: #8b949e; list-style: none; padding: 0; }
+        .item-list li { margin-bottom: 5px; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
-    <h2>🌲 Dark Woods: Gemini Final</h2>
-    <div id="game-container">
-        <div id="game-output"></div>
-    </div>
-    <div id="input-container">
-        <input type="text" id="user-input" placeholder="무엇을 하시겠습니까?" autofocus>
-        <button id="submit-btn">전송</button>
+
+<div id="main-wrapper">
+    <div id="game-section">
+        <h2>🌲 THE ABYSSAL WOODS</h2>
+        <div id="game-container">
+            <div id="game-output"></div>
+        </div>
+        <div id="input-container">
+            <input type="text" id="user-input" placeholder="심연 속으로 명령을 던지세요..." autofocus>
+            <button id="submit-btn">전송</button>
+        </div>
     </div>
 
-    <script type="importmap">
-    {
-      "imports": {
-        "@google/generative-ai": "https://esm.run/@google/generative-ai"
-      }
+    <aside id="sidebar">
+        <div class="stat-box">
+            <div class="stat-title">STATUS</div>
+            <div style="font-size: 1.1rem; color: #fff;">정신력: 100%</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-title">INVENTORY</div>
+            <ul class="item-list">
+                <li>🪓 녹슨 도끼</li>
+                <li>🕯️ 꺼져가는 양초</li>
+            </ul>
+        </div>
+        <div class="stat-box">
+            <div class="stat-title">LOCATION</div>
+            <div id="loc-text" style="font-size: 0.8rem;">숲의 초입</div>
+        </div>
+    </aside>
+</div>
+
+<script type="importmap">
+{
+  "imports": {
+    "@google/generative-ai": "https://esm.run/@google/generative-ai"
+  }
+}
+</script>
+
+<script type="module">
+    import { GoogleGenerativeAI } from "@google/generative-ai";
+
+    const API_KEY = "AIzaSyAQlRLYs_CcwFViOLFsgWiLT9MjuZspRX0"; 
+    const genAI = new GoogleGenerativeAI(API_KEY);
+    
+    // 모델명을 gemini-1.5-flash로 수정 (2.5는 아직 지원되지 않아!)
+    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+
+    const gameOutput = document.getElementById('game-output');
+    const userInput = document.getElementById('user-input');
+    const submitBtn = document.getElementById('submit-btn');
+    const gameContainer = document.getElementById('game-container');
+
+    let gameActive = true;
+    let chat = null;
+
+    const systemInstruction = "당신은 어두운 텍스트 어드벤처 마스터입니다. 절망적인 분위기를 유지하며 한국어로 대답하세요. 플레이어가 죽으면 반드시 '당신은 죽었습니다.'를 포함하세요.";
+
+    async function initGame() {
+        chat = model.startChat({
+            history: [
+                { role: "user", parts: [{ text: systemInstruction }] },
+                { role: "model", parts: [{ text: "안개가 자욱한 숲의 경계에 서 있습니다. 손에 쥔 도끼의 차가운 금속 감각만이 당신이 살아있음을 증명합니다. 숲 안쪽에서 무언가 긁는 듯한 소리가 들립니다. 어떻게 하시겠습니까?" }] }
+            ]
+        });
+        addMessage("안개가 자욱한 숲의 경계에 서 있습니다. 손에 쥔 도끼의 차가운 금속 감각만이 당신이 살아있음을 증명합니다. 숲 안쪽에서 무언가 긁는 듯한 소리가 들립니다. 어떻게 하시겠습니까?", 'game-message');
     }
-    </script>
 
-    <script type="module">
-        import { GoogleGenerativeAI } from "@google/generative-ai";
+    async function handleSend() {
+        const text = userInput.value.trim();
+        if (!text || !gameActive) return;
 
-        // ⚠️ Google AI Studio에서 발급받은 API 키 입력
-        const API_KEY = "AIzaSyAQlRLYs_CcwFViOLFsgWiLT9MjuZspRX0"; 
-        const genAI = new GoogleGenerativeAI(API_KEY);
-        
-        // 1.5 Flash는 무료 할당량이 넉넉하고 브라우저 호출을 잘 허용해줌
-        const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+        addMessage(text, 'user-message');
+        userInput.value = '';
 
-        const gameOutput = document.getElementById('game-output');
-        const userInput = document.getElementById('user-input');
-        const submitBtn = document.getElementById('submit-btn');
-        const gameContainer = document.getElementById('game-container');
+        const loadingDiv = addMessage("...심연이 꿈틀거리는 중...", 'system-alert');
 
-        let gameActive = true;
-        let chat = null;
+        try {
+            const result = await chat.sendMessage(text);
+            const response = await result.response;
+            const aiText = response.text();
 
-        const systemInstruction = "당신은 어두운 텍스트 어드벤처 마스터입니다. 절망적인 분위기를 유지하며 한국어로 대답하세요. 플레이어가 죽으면 반드시 '당신은 죽었습니다.'를 포함하세요.";
+            gameOutput.removeChild(loadingDiv);
+            addMessage(aiText, 'game-message');
 
-        async function initGame() {
-            chat = model.startChat({
-                history: [
-                    { role: "user", parts: [{ text: systemInstruction }] },
-                    { role: "model", parts: [{ text: "당신은 숲 입구 앞에 서 있습니다. 손에는 낡은 도끼 한 자루가 쥐어져 있습니다. 사방에서 기분 나쁜 울음소리가 들려옵니다. 다음 행동을 입력해주세요." }] }
-                ]
-            });
-            addMessage("당신은 숲 입구 앞에 서 있습니다. 손에는 낡은 도끼 한 자루가 쥐어져 있습니다. 사방에서 기분 나쁜 울음소리가 들려옵니다. 다음 행동을 입력해주세요.", 'game-message');
-        }
-
-        async function handleSend() {
-            const text = userInput.value.trim();
-            if (!text || !gameActive) return;
-
-            addMessage(`> ${text}`, 'user-message');
-            userInput.value = '';
-
-            const loadingDiv = addMessage("...심연이 응답하는 중...", 'game-message');
-
-            try {
-                const result = await chat.sendMessage(text);
-                const response = await result.response;
-                const aiText = response.text();
-
-                gameOutput.removeChild(loadingDiv);
-                addMessage(aiText, 'game-message');
-
-                if (aiText.includes("당신은 죽었습니다.")) {
-                    gameActive = false;
-                    userInput.disabled = true;
-                    submitBtn.disabled = true;
-                }
-            } catch (error) {
-                loadingDiv.textContent = `오류: ${error.message}`;
-                loadingDiv.className = 'error-message';
+            if (aiText.includes("당신은 죽었습니다.")) {
+                gameActive = false;
+                userInput.disabled = true;
+                submitBtn.disabled = true;
+                addMessage("--- 인과율이 끊어졌습니다 ---", 'system-alert');
             }
+        } catch (error) {
+            loadingDiv.textContent = `오류 발생: ${error.message}`;
         }
+    }
 
-        function addMessage(msg, className) {
-            const div = document.createElement('div');
-            div.className = className;
-            div.textContent = msg;
-            gameOutput.appendChild(div);
-            gameContainer.scrollTop = gameContainer.scrollHeight;
-            return div;
-        }
+    function addMessage(msg, className) {
+        const div = document.createElement('div');
+        div.className = className;
+        div.textContent = msg;
+        gameOutput.appendChild(div);
+        gameContainer.scrollTo({ top: gameContainer.scrollHeight, behavior: 'smooth' });
+        return div;
+    }
 
-        submitBtn.onclick = handleSend;
-        userInput.onkeypress = (e) => { if (e.key === 'Enter') handleSend(); };
-        
-        initGame();
-    </script>
+    submitBtn.onclick = handleSend;
+    userInput.onkeypress = (e) => { if (e.key === 'Enter') handleSend(); };
+    
+    initGame();
+</script>
 </body>
 </html>
